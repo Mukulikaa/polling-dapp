@@ -85,4 +85,45 @@ contract Dapp {
         return state.getCounter();
     }
 
+
+struct Candidate {
+        uint id;
+        string name;
+        uint voteCount;
+    }
+
+    uint public candidateCount;
+
+    mapping(address => bool) public voterLookup;
+    mapping(uint => Candidate) public candidateLookup;
+
+    function addCandidate(string memory name) public {
+        candidateLookup[candidateCount] = Candidate(candidateCount, name, 0);
+        candidateCount++; 
+    }
+
+    // function getCandidate(uint id) external view returns (string memory name, uint voteCount) {
+    //     name = candidateLookup[id].name;
+    //     voteCount = candidateLookup[id].voteCount;
+    // }
+
+    function getCandidates() external view returns (string[] memory, uint[] memory) {
+        string[] memory names = new string[](candidateCount);
+        uint[] memory voteCounts = new uint[](candidateCount);
+        for (uint i = 0; i < candidateCount; i++) {
+            names[i] = candidateLookup[i].name;
+            voteCounts[i] = candidateLookup[i].voteCount;
+        }
+        return (names, voteCounts);
+    }
+
+    function vote(uint id) external {
+        require (!voterLookup[msg.sender]);
+        require (id >= 0 && id <= candidateCount-1);
+        candidateLookup[id].voteCount++;
+        emit votedEvent(id);
+    }
+
+    event votedEvent(uint indexed id);
 } 
+

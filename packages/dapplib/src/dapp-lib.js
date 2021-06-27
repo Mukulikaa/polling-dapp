@@ -430,4 +430,41 @@ module.exports = class DappLib {
         );
     }
 
+    static async getCandidates() {
+    
+        //Result object will contain the list of our candidates
+        let result = await Blockchain.get({
+                config: DappLib.getConfig(),
+                contract: DappLib.DAPP_CONTRACT,
+                params: {
+                }
+            },
+            'getCandidates', // Make sure this matches the function name in Dapp.sol
+        );   
+        
+        let results = [];
+        //Fetch names from the Result object
+        let names = result.callData[0];
+        //Fetch vote counts from the Result object
+        let voteCounts = result.callData[1];
+        //Let's merge names and voteCounts together so that our final result looks something like this:
+        /*
+            {
+                name: "Kitty"
+                voteCount: 0
+            },
+            {
+                name: "Doggo"
+                voteCount: 0
+            }
+        */
+        names.forEach((name, index) => {
+            results.push({
+                name: name,
+                voteCount: voteCounts[index],
+            })
+        });
+        return results;
+    }
+
 }
